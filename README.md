@@ -1,4 +1,4 @@
-# r-devel
+# R-Devel-Nix
 
 Building R from source requires a considerable amount of tooling, and new developers do not have always have everything they need to build R out of the box. The R development team supplies a useful containerized development environment, but it requires GitHub, Docker, VS Code, and the VS Code Dev Containers extension.
 
