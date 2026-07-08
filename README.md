@@ -23,11 +23,15 @@ echo 'experimental-features = nix-command flakes' >> ~/.config/nix/nix.conf
 
 ## Usage
 
-The next command operate on the **current working directory**, creating and building `./R-devel`, so first `cd` to where you want the source tree to live:
+Our helper scripts will operate on the current directory and will create `./R-devel`. So first `cd` to where you want the source tree to live:
 
 ```sh
 mkdir -p ~/r && cd ~/r
+```
 
+Then, we call `nix` to clone/update the repository, build `R`, and launch it:
+
+```sh
 # svn checkout/update trunk into ./R-devel
 nix run github:vincentarelbundock/R-devel-nix#update   
 
@@ -79,8 +83,6 @@ cd R-devel && ./configure --enable-R-shlib && make -j$(nproc) && ./bin/R
 - Nix caches the fetched flake, so after this repository is updated you may keep
   getting the old version. Force a refetch with `--refresh`:
 
-  ```sh
-  nix run --refresh github:vincentarelbundock/R-devel-nix#build
-  ```
-
-  You only need it once after an update; later runs pick up the cached new version.
+```sh
+nix run --refresh github:vincentarelbundock/R-devel-nix#build
+```
