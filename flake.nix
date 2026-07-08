@@ -74,11 +74,14 @@
         rsync
       ];
 
-      # The Nix cc-wrapper honours these env vars; they reproduce exactly the
-      # flag set that produced a working build.
-      cflags = lib.concatMapStringsSep " " (p: "-isystem ${lib.getDev p}/include") rLibs;
+      # Standard autoconf CPPFLAGS/LDFLAGS that ./configure passes straight to
+      # the compiler. We set these (rather than the Nix cc-wrapper's
+      # NIX_CFLAGS_COMPILE/NIX_LDFLAGS) because the wrapper only injects its own
+      # vars when the per-wrapper suffix-salt variable is set, which is not the
+      # case inside a `nix run` app — so the wrapper path silently no-ops there.
+      cppflags = lib.concatMapStringsSep " " (p: "-isystem ${lib.getDev p}/include") rLibs;
       ldflags = lib.concatMapStringsSep " " (
-        p: "-L${lib.getLib p}/lib -rpath ${lib.getLib p}/lib"
+        p: "-L${lib.getLib p}/lib -Wl,-rpath,${lib.getLib p}/lib"
       ) rLibs;
       pkgConfigPath = lib.makeSearchPathOutput "dev" "lib/pkgconfig" rLibs;
       # The .dev outputs also carry the "*-config" helpers (curl-config,
@@ -91,8 +94,8 @@
       envSetup = ''
         export SRC_DIR="''${R_SRC_DIR:-$PWD/R-devel}"
         export PATH="${devBins}''${PATH:+:$PATH}"
-        export NIX_CFLAGS_COMPILE="${cflags}''${NIX_CFLAGS_COMPILE:+ $NIX_CFLAGS_COMPILE}"
-        export NIX_LDFLAGS="${ldflags}''${NIX_LDFLAGS:+ $NIX_LDFLAGS}"
+        export CPPFLAGS="${cppflags}''${CPPFLAGS:+ $CPPFLAGS}"
+        export LDFLAGS="${ldflags}''${LDFLAGS:+ $LDFLAGS}"
         export PKG_CONFIG_PATH="${pkgConfigPath}''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
         export FILECMD="${fileCmd}"
         export MAGIC_CMD="${fileCmd}"
